@@ -32,7 +32,12 @@ async def handle_incoming_call(request: Request):
 
     response = VoiceResponse()
     connect = Connect()
-    connect.stream(url=f"wss://{request.url.hostname}/media-stream")
+    connect.stream(
+        url=f"wss://{request.url.hostname}/media-stream",
+        parameters=[
+            {"name": "codec", "value": "audio/L16;rate=8000"}
+        ]          
+    )
     response.append(connect)
     return HTMLResponse(content=str(response), media_type="application/xml")
 
