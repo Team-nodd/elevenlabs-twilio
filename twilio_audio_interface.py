@@ -24,6 +24,10 @@ class TwilioAudioInterface(AudioInterface):
         """
         This method should return quickly and not block the calling thread.
         """
+            # Fix endian here
+        samples = np.frombuffer(audio, dtype=np.int16)
+        big_endian_audio = samples.byteswap().tobytes()
+        
         asyncio.run_coroutine_threadsafe(self.send_audio_to_twilio(audio), self.loop)
 
     def interrupt(self):
@@ -32,12 +36,8 @@ class TwilioAudioInterface(AudioInterface):
     async def send_audio_to_twilio(self, audio: bytes):
         if self.stream_sid:
             
-            # Convert little-endian PCM to big-endian (byte swap)
-            samples = np.frombuffer(audio, dtype=np.int16)
-            big_endian_audio = samples.byteswap().tobytes()
-
             audio_payload = base64.b64encode(audio).decode("utf-8")
-            
+
             audio_delta = {
                 "event": "media",
                 "streamSid": self.stream_sid,
