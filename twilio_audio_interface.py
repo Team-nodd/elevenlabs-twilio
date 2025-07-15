@@ -27,8 +27,8 @@ class TwilioAudioInterface(AudioInterface):
             # Fix endian here
         samples = np.frombuffer(audio, dtype=np.int16)
         big_endian_audio = samples.byteswap().tobytes()
-        
-        asyncio.run_coroutine_threadsafe(self.send_audio_to_twilio(audio), self.loop)
+
+        asyncio.run_coroutine_threadsafe(self.send_audio_to_twilio(big_endian_audio), self.loop)
 
     def interrupt(self):
         asyncio.run_coroutine_threadsafe(self.send_clear_message_to_twilio(), self.loop)
