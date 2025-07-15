@@ -4,6 +4,7 @@ import json
 from fastapi import WebSocket
 from elevenlabs.conversational_ai.conversation import AudioInterface
 from starlette.websockets import WebSocketDisconnect, WebSocketState
+import numpy as np
 
 
 class TwilioAudioInterface(AudioInterface):
