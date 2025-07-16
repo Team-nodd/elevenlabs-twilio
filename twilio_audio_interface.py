@@ -5,6 +5,8 @@ from fastapi import WebSocket
 from elevenlabs.conversational_ai.conversation import AudioInterface
 from starlette.websockets import WebSocketDisconnect, WebSocketState
 import logging
+import numpy as np
+import g711
 
 
  # Configure logging if not already configured
@@ -87,7 +89,17 @@ class TwilioAudioInterface(AudioInterface):
 
             print("Media received:", len(data["media"]["payload"]))
 
-            audio_data = base64.b64decode(data["media"]["payload"])
+            # Decode base64 to μ-law bytes
+            ulaw_bytes = base64.b64decode(data["media"]["payload"])
+            print(f"Audio frame size (ulaw): {len(ulaw_bytes)} bytes")
 
-            print(f"Audio frame size: {len(audio_data)} bytes")
-            self.input_callback(audio_data)
+            # Convert μ-law to PCM (float32 numpy array)
+            pcm_float = g711.decode_ulaw(ulaw_bytes)  # float32 numpy array
+            print(f"PCM float32 frame size: {pcm_float.shape}")
+
+            # Convert float32 PCM to int16 PCM (as expected by most speech APIs)
+            pcm_int16 = np.clip(pcm_float * 32768, -32768, 32767).astype(np.int16)
+            print(f"PCM int16 frame size: {pcm_int16.shape}")
+
+            # Pass raw bytes to callback
+            self.input_callback(pcm_int16.tobytes())
