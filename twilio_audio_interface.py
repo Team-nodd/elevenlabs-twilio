@@ -48,13 +48,15 @@ class TwilioAudioInterface(AudioInterface):
                     "media": {"payload": audio_payload},
                 }
 
-                logger.info(f"Preparing to send audio. Stream SID: {self.stream_sid}")
-                logger.debug(f"Audio payload size (bytes before encoding): {len(audio)}")
-                logger.debug(f"Base64 audio payload size (chars): {len(audio_payload)}")
+                print(f"Preparing to send audio. Stream SID: {self.stream_sid}")
+                print(f"Audio payload size (bytes before encoding): {len(audio)}")
+                print(f"Base64 audio payload size (chars): {len(audio_payload)}")
+              
                 
                 if self.websocket.application_state == WebSocketState.CONNECTED:
                     await self.websocket.send_text(json.dumps(audio_delta))
                     logger.info("Audio data sent successfully to Twilio.")
+                    print(f"Data from elevensLab:{json.dumps(audio_delta)}")
                 else:
                     logger.warning("WebSocket not connected. Skipping audio send.")
             
