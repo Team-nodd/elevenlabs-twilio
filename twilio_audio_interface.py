@@ -5,6 +5,7 @@ from fastapi import WebSocket
 from elevenlabs.conversational_ai.conversation import AudioInterface
 from starlette.websockets import WebSocketDisconnect, WebSocketState
 import logging
+import audioop
 
  # Configure logging if not already configured
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +20,7 @@ class TwilioAudioInterface(AudioInterface):
         self.loop = asyncio.get_event_loop()
 
     def start(self, input_callback):
+        print("AudioInterface: start called")
         self.input_callback = input_callback
 
     def stop(self):
@@ -80,5 +82,10 @@ class TwilioAudioInterface(AudioInterface):
         if event_type == "start":
             self.stream_sid = data["start"]["streamSid"]
         elif event_type == "media" and self.input_callback:
+            
+            print("Media received:", len(data["media"]["payload"]))
+
             audio_data = base64.b64decode(data["media"]["payload"])
+
+            print(f"Audio frame size: {len(audio_data)} bytes")
             self.input_callback(audio_data)

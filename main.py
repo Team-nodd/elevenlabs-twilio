@@ -44,6 +44,7 @@ async def handle_incoming_call(request: Request):
 
 @app.websocket("/media-stream")
 async def handle_media_stream(websocket: WebSocket):
+    
     await websocket.accept()
     print("WebSocket connection opened")
 
@@ -58,12 +59,14 @@ async def handle_media_stream(websocket: WebSocket):
             audio_interface=audio_interface,
             callback_agent_response=lambda text: print(f"Agent: {text}"),
             callback_user_transcript=lambda text: print(f"User: {text}"),
+            callback_latency_measurement=lambda latency: print(f"Latency: {latency}ms"),
         )
 
         conversation.start_session()
         print("Conversation started")
 
         async for message in websocket.iter_text():
+            print(json.loads(message))
             if not message:
                 continue
             await audio_interface.handle_twilio_message(json.loads(message))
