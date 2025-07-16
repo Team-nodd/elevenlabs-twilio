@@ -63,7 +63,7 @@ async def handle_media_stream(websocket: WebSocket):
         print("Conversation started")
 
         async for message in websocket.iter_text():
-            print(json.loads(message))
+            print(f"Json Load: {json.loads(message)}")
             if not message:
                 continue
             await audio_interface.handle_twilio_message(json.loads(message))
