@@ -89,17 +89,7 @@ class TwilioAudioInterface(AudioInterface):
 
             print("Media received:", len(data["media"]["payload"]))
 
-            # Decode base64 to μ-law bytes
+            # Decode base64 to μ-law bytes and pass directly to callback
             ulaw_bytes = base64.b64decode(data["media"]["payload"])
             print(f"Audio frame size (ulaw): {len(ulaw_bytes)} bytes")
-
-            # Convert μ-law to PCM (float32 numpy array)
-            pcm_float = g711.decode_ulaw(ulaw_bytes)  # float32 numpy array
-            print(f"PCM float32 frame size: {pcm_float.shape}")
-
-            # Convert float32 PCM to int16 PCM (as expected by most speech APIs)
-            pcm_int16 = np.clip(pcm_float * 32768, -32768, 32767).astype(np.int16)
-            print(f"PCM int16 frame size: {pcm_int16.shape}")
-
-            # Pass raw bytes to callback
-            self.input_callback(pcm_int16.tobytes())
+            self.input_callback(ulaw_bytes)
