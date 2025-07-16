@@ -5,3 +5,5 @@ python-dotenv
 elevenlabs
 starlette
 python-multipart
+numpy
+g711
