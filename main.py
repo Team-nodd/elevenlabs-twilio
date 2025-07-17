@@ -51,14 +51,12 @@ async def handle_media_stream(websocket: WebSocket):
     audio_interface = TwilioAudioInterface(websocket)
     eleven_labs_client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
     conversation_context = {}
-
     try:
         conversation = Conversation(
             client=eleven_labs_client,
             agent_id=ELEVEN_LABS_AGENT_ID,
             requires_auth=True, # Security > Enable authentication
             audio_interface=audio_interface,
-            context=conversation_context,
             callback_agent_response=lambda text: print(f"Agent: {text}"),
             callback_user_transcript=lambda text: print(f"User: {text}"),
             callback_latency_measurement=lambda latency: print(f"Latency: {latency}ms"),
@@ -70,15 +68,11 @@ async def handle_media_stream(websocket: WebSocket):
 
         async for message in websocket.iter_text():
             print(f"Json Load: {json.loads(message)}")
-            data = json.loads(message)
-            event_type = data.get("event")
+           
             if not message:
                 continue
             await audio_interface.handle_twilio_message(json.loads(message))
-            if event_type == "start":
-                custom_params = data["start"].get("customParameters", {})
-                conversation_context.update(custom_params)
-                print(f"Custom Parameters received: {custom_params}")
+          
 
     except WebSocketDisconnect:
         print("WebSocket disconnected")
