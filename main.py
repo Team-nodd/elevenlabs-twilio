@@ -50,6 +50,7 @@ async def handle_media_stream(websocket: WebSocket):
 
     audio_interface = TwilioAudioInterface(websocket)
     eleven_labs_client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+    conversation_context = {}
 
     try:
         conversation = Conversation(
@@ -65,7 +66,7 @@ async def handle_media_stream(websocket: WebSocket):
 
         conversation.start_session()
         print("Conversation started")
-        conversation_context = {}
+      
 
         async for message in websocket.iter_text():
             print(f"Json Load: {json.loads(message)}")
@@ -85,13 +86,14 @@ async def handle_media_stream(websocket: WebSocket):
         print("Error occurred in WebSocket handler:")
         traceback.print_exc()
     finally:
-        try:
-            conversation.end_session()
-            conversation.wait_for_session_end()
-            print("Conversation ended")
-        except Exception:
-            print("Error ending conversation session:")
-            traceback.print_exc()
+        if conversation is not None:
+            try:
+                conversation.end_session()
+                conversation.wait_for_session_end()
+                print("Conversation ended")
+            except Exception:
+                print("Error ending conversation session:")
+                traceback.print_exc()
 
 
 if __name__ == "__main__":
